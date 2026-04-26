@@ -7,7 +7,7 @@ const TWILIO_SID = process.env.TWILIO_SID;
 const TWILIO_TOKEN = process.env.TWILIO_TOKEN;
 const TWILIO_FROM = process.env.TWILIO_FROM;
 const TWILIO_TO = process.env.TWILIO_TO;
-const LOW_THRESHOLD = 250;
+const LOW_THRESHOLD = 300;
 
 let lastAlertTime = 0;
 let lastAlertType = null;
@@ -38,7 +38,7 @@ function checkAlerts(sgv, direction) {
   const cooldown = 30 * 60 * 1000;
   if (sgv < LOW_THRESHOLD) {
     if (lastAlertType !== 'low' || now - lastAlertTime > cooldown) {
-      sendSMS(`🚨 BS Buddies: Kyle's is LOW at ${sgv} mg/dL and ${direction}. Sugar NOW. No insulin.`);
+      sendSMS(`🚨 BS Buddies: Kyle's is LOW at ${sgv} mg/dL and ${direction}. Sugar NOW.`);
       lastAlertTime = now;
       lastAlertType = 'low';
       console.log(`LOW alert sent! SGV: ${sgv}`);
