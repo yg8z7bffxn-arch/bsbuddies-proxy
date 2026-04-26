@@ -9,11 +9,9 @@ const TWILIO_FROM = process.env.TWILIO_FROM;
 const TWILIO_TO = process.env.TWILIO_TO;
 const LOW_THRESHOLD = 300;
 
-let lastAlertTime = 0;
-let lastAlertType = null;
-
-function sendSMS(message) {
-  const body = `To=${encodeURIComponent(TWILIO_TO)}&From=${encodeURIComponent(TWILIO_FROM)}&Body=${encodeURIComponent(message)}`;
+function sendSMS() {
+  const msg = 'Kyle LOW. Give juice NOW.';
+  const body = `To=${encodeURIComponent(TWILIO_TO)}&From=${encodeURIComponent(TWILIO_FROM)}&Body=${encodeURIComponent(msg)}`;
   const auth = Buffer.from(`${TWILIO_SID}:${TWILIO_TOKEN}`).toString('base64');
   const options = {
     hostname: 'api.twilio.com',
@@ -22,30 +20,15 @@ function sendSMS(message) {
     headers: {
       'Authorization': `Basic ${auth}`,
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Content-Length': body.length
+      'Content-Length': Buffer.byteLength(body)
     }
   };
   const req = https.request(options, (res) => {
-    console.log(`SMS sent! Status: ${res.statusCode}`);
+    console.log(`SMS status: ${res.statusCode}`);
   });
   req.on('error', (e) => console.error('SMS error:', e.message));
   req.write(body);
   req.end();
-}
-
-function checkAlerts(sgv, direction) {
-  const now = Date.now();
-  const cooldown = 0;
-  if (sgv < LOW_THRESHOLD) {
-    if (lastAlertType !== 'low' || now - lastAlertTime > cooldown) {
-      sendSMS(`🚨 BS Buddies: Kyle's is LOW at ${sgv} mg/dL and ${direction}. Sugar NOW.`);
-      lastAlertTime = now;
-      lastAlertType = 'low';
-      console.log(`LOW alert sent! SGV: ${sgv}`);
-    }
-  } else {
-    if (lastAlertType === 'low') lastAlertType = null;
-  }
 }
 
 const server = http.createServer((req, res) => {
@@ -61,19 +44,22 @@ const server = http.createServer((req, res) => {
           const parsed = JSON.parse(data);
           const entry = Array.isArray(parsed) ? parsed[0] : parsed;
           if (entry && entry.sgv) {
-            checkAlerts(entry.sgv, entry.direction || 'Flat');
+            console.log(`SGV: ${entry.sgv} threshold: ${LOW_THRESHOLD}`);
+            if (entry.sgv < LOW_THRESHOLD) {
+              console.log('Sending SMS!');
+              sendSMS();
+            }
           }
           res.end(data);
         } catch(e) {
+          console.error('Parse error:', e.message);
           res.end(data);
         }
       });
     }).on('error', (e) => res.end(JSON.stringify({error: e.message})));
   } else {
-    res.end(JSON.stringify({status: 'BS Buddies Proxy Running'}));
+    res.end(JSON.stringify({status: 'ok'}));
   }
 });
 
 server.listen(PORT, () => console.log(`Running on port ${PORT}`));
-
-
