@@ -7,7 +7,7 @@ const TWILIO_SID = process.env.TWILIO_SID;
 const TWILIO_TOKEN = process.env.TWILIO_TOKEN;
 const TWILIO_FROM = process.env.TWILIO_FROM;
 const TWILIO_TO = process.env.TWILIO_TO;
-const LOW_THRESHOLD = 45;
+const LOW_THRESHOLD = 200;
 
 let lastAlertTime = 0;
 let lastAlertType = null;
