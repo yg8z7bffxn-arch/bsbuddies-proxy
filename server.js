@@ -38,7 +38,7 @@ function checkAlerts(sgv, direction) {
   const cooldown = 30 * 60 * 1000;
   if (sgv < LOW_THRESHOLD) {
     if (lastAlertType !== 'low' || now - lastAlertTime > cooldown) {
-      sendSMS(`🚨 BS Buddies: Kyle's is LOW at ${sgv} mg/dL and ${direction}. Give juice or soda NOW. No insulin.`);
+      sendSMS(`🚨 BS Buddies: Kyle's is LOW at ${sgv} mg/dL and ${direction}. Juice or soda NOW. No insulin.`);
       lastAlertTime = now;
       lastAlertType = 'low';
       console.log(`LOW alert sent! SGV: ${sgv}`);
